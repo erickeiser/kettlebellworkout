@@ -1,0 +1,7 @@
+{
+  "name": "KettleCut: 12-Week Kettlebell Transformation",
+  "description": "A 12-week high-intensity kettlebell workout program designed to take a user from 198 lbs to 165 lbs. Features workout tracking, weekly assessments, and progress visualization.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
