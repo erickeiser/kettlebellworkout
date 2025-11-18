@@ -14,7 +14,8 @@ const DashboardPage: React.FC = () => {
         addProgressLog,
         addPhotoLog,
         completedWorkouts,
-        workouts
+        workouts,
+        programStartDate
     } = useWorkoutData();
     
     const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
@@ -55,10 +56,18 @@ const DashboardPage: React.FC = () => {
     
     const completionPercentage = Math.round((completedWorkouts.length / workouts.length) * 100);
 
+    const getWelcomeMessage = () => {
+        if (!programStartDate) {
+            return "Ready to start your transformation?";
+        }
+        const formattedDate = new Date(programStartDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        return `Program started on ${formattedDate}. Keep up the great work!`;
+    };
+
     return (
         <div className="container mx-auto p-4 md:p-6">
             <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {user?.email.split('@')[0]}</h1>
-            <p className="text-gray-400 mb-8">Ready to crush another workout?</p>
+            <p className="text-gray-400 mb-8">{getWelcomeMessage()}</p>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main content */}

@@ -9,6 +9,7 @@ const useWorkoutData = () => {
   const [progressLogs, setProgressLogs] = useState<ProgressLog[]>([]);
   const [photoLogs, setPhotoLogs] = useState<PhotoLog[]>([]);
   const [completedWorkouts, setCompletedWorkouts] = useState<CompletedWorkout[]>([]);
+  const [programStartDate, setProgramStartDate] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -16,9 +17,13 @@ const useWorkoutData = () => {
         const savedProgress = localStorage.getItem(`kettlecut_progress_${user.id}`);
         const savedPhotos = localStorage.getItem(`kettlecut_photos_${user.id}`);
         const savedCompleted = localStorage.getItem(`kettlecut_completed_${user.id}`);
+        const savedStartDate = localStorage.getItem(`kettlecut_startDate_${user.id}`);
+        
         if (savedProgress) setProgressLogs(JSON.parse(savedProgress));
         if (savedPhotos) setPhotoLogs(JSON.parse(savedPhotos));
         if (savedCompleted) setCompletedWorkouts(JSON.parse(savedCompleted));
+        if (savedStartDate) setProgramStartDate(JSON.parse(savedStartDate));
+        
       } catch (error) {
           console.error("Failed to parse data from localStorage", error);
       }
@@ -60,6 +65,14 @@ const useWorkoutData = () => {
   const markWorkoutComplete = (workoutId: string) => {
       if(!user) return;
       if (isWorkoutCompleted(workoutId)) return; // Avoid duplicates
+
+      // If this is the very first workout, set the program start date.
+      if (completedWorkouts.length === 0) {
+          const startDate = new Date().toISOString();
+          setProgramStartDate(startDate);
+          saveData(`kettlecut_startDate_${user.id}`, startDate);
+      }
+
       const newCompletion: CompletedWorkout = {
           userId: user.id,
           workoutId,
@@ -79,14 +92,13 @@ const useWorkoutData = () => {
   };
   
   const getTodaysWorkout = () => {
-    // This is a simulation. A real app would use the user's start date.
-    // We'll just find the first uncompleted workout.
+    // This logic correctly finds the next workout to be completed, ensuring no days are skipped.
     for (const workout of workouts) {
         if (!isWorkoutCompleted(workout.id)) {
             return workout;
         }
     }
-    // If all are completed, show the last workout or a completion message.
+    // If all are completed, show the last workout.
     return workouts[workouts.length - 1]; 
   };
 
@@ -99,6 +111,7 @@ const useWorkoutData = () => {
     progressLogs,
     photoLogs,
     completedWorkouts,
+    programStartDate,
     addProgressLog,
     addPhotoLog,
     markWorkoutComplete,
